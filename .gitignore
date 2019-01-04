@@ -2,5 +2,3 @@ bin/
 obj/
 .vs/
 ~$*
-Properties/
-progressstyle.xaml
