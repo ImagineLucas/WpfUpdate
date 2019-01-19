@@ -3,13 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
+using System.Net.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Web.Script.Serialization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace WpfUpdate
 {
@@ -63,7 +66,7 @@ namespace WpfUpdate
             var pathArr = _strPath.Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
             var fileName = pathArr[pathArr.Length - 1];
             _isStartDown = true;
-            closeImage.Visibility=Visibility.Hidden;
+            closeImage.Visibility = Visibility.Hidden;
             Thread t = new Thread(() =>
             {
                 try
@@ -84,6 +87,10 @@ namespace WpfUpdate
                 {
                     Unzip(fileName);
                 }
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    closeImage.Visibility = Visibility.Visible;
+                });
             })
             { IsBackground = true };
             try
@@ -100,6 +107,12 @@ namespace WpfUpdate
 
         private void DownloadFileDetail(string url, string filename)
         {
+            //为了解决  从传输流中收到意外的EOF或0字节 错误
+            const SslProtocols tls12 = (SslProtocols)0x00000C00;
+            const SecurityProtocolType tlsType12 = (SecurityProtocolType)tls12;
+            ServicePointManager.SecurityProtocol = tlsType12;
+
+            ServicePointManager.ServerCertificateValidationCallback = MyRemoteCertificateValidationCallback;
             var myrq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
             var response = (System.Net.HttpWebResponse)myrq.GetResponse();
             try
@@ -109,7 +122,7 @@ namespace WpfUpdate
                 var httpStream = response.GetResponseStream();
                 var totalBytes = response.ContentLength;
                 var outputStream = new FileStream(fileName, FileMode.Create);
-                var bufferSize = 4096;
+                var bufferSize = 10240;
                 var buffer = new byte[bufferSize];
                 if (httpStream != null)
                 {
@@ -222,7 +235,7 @@ namespace WpfUpdate
             {
                 return false;
             }
-            
+
             _strInfo = strUpdateInfo;
             return true;
 
@@ -293,7 +306,7 @@ namespace WpfUpdate
                             {
                                 pro4.Value = b;
                                 var d = b * 100.00 / allBytes;
-                                if(d > 100)
+                                if (d > 100)
                                     d = 100.00;
                                 this.lab_num.Text = $"{d:F}" + "%";
                             }));
@@ -342,6 +355,34 @@ namespace WpfUpdate
                 _isStartDown = false;
                 File.Delete(zipFilePath);
             }
+        }
+
+        public bool MyRemoteCertificateValidationCallback(System.Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            bool isOk = true;
+            // If there are errors in the certificate chain,
+            // look at each error to determine the cause.
+            if (sslPolicyErrors != SslPolicyErrors.None)
+            {
+                for (int i = 0; i < chain.ChainStatus.Length; i++)
+                {
+                    if (chain.ChainStatus[i].Status == X509ChainStatusFlags.RevocationStatusUnknown)
+                    {
+                        continue;
+                    }
+                    chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
+                    chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
+                    chain.ChainPolicy.UrlRetrievalTimeout = new TimeSpan(0, 1, 0);
+                    chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllFlags;
+                    bool chainIsValid = chain.Build((X509Certificate2)certificate);
+                    if (!chainIsValid)
+                    {
+                        isOk = false;
+                        break;
+                    }
+                }
+            }
+            return isOk;
         }
     }
 
