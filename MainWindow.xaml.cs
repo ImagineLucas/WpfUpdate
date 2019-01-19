@@ -62,6 +62,7 @@ namespace WpfUpdate
             var pathArr = _strPath.Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
             var fileName = pathArr[pathArr.Length - 1];
             _isStartDown = true;
+            closeImage.IsEnabled = false;
             Thread t = new Thread(() =>
             {
                 try
