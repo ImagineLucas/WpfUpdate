@@ -31,6 +31,7 @@ namespace WpfUpdate
             InitializeComponent();
             CenterWindowOnScreen();
             _strPath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
+
             if (UpdateInfo() == false)
             {
                 btnUpdate.IsEnabled = false;
@@ -62,7 +63,7 @@ namespace WpfUpdate
             var pathArr = _strPath.Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
             var fileName = pathArr[pathArr.Length - 1];
             _isStartDown = true;
-            closeImage.IsEnabled = false;
+            closeImage.Visibility=Visibility.Hidden;
             Thread t = new Thread(() =>
             {
                 try
