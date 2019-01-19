@@ -1,1 +1,0 @@
-{"version":"3.0","update_time":"2015-05-05","infos":["1、更新了Beginner1、3、5的全部单元;","2、新增了控堂游戏Push ann Pull,Byebye Ballonns和Soccer Ball;","3、修复了一些已知问题。","1、更新了Beginner1、3、5的全部单元;","2、新增了控堂游戏Push ann Pull,Byebye Ballonns和Soccer Ball;"]}

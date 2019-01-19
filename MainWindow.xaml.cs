@@ -30,7 +30,6 @@ namespace WpfUpdate
         {
             InitializeComponent();
             CenterWindowOnScreen();
-            //txtUpdateInfo.Text = "1、更新了Beginner1、3、5的全部单元。\n2、新增控堂游戏Push and Pull";
             _strPath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
             if (UpdateInfo() == false)
             {
@@ -49,8 +48,6 @@ namespace WpfUpdate
                 sb.AppendLine(_updateInfo.infos[i]);
             }
             sb.AppendLine(_updateInfo.infos[_updateInfo.infos.Length - 1]);
-            //txtUpdateInfo.Text = sb.ToString();
-
         }
         private void Image_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e)
         {
@@ -79,15 +76,10 @@ namespace WpfUpdate
                 }
                 finally
                 {
-                }
 
+                }
                 if (_blSuccess)
                 {
-                    //启动
-                    //if (serviceUpdateInfo.ExcuteFileName.Contains(".exe"))
-                    //    Process.Start(serviceUpdateInfo.ExcuteFileName);
-                    //else
-                    //    Process.Start(strMainProFileName);
                     Unzip(fileName);
                 }
             })
@@ -245,7 +237,6 @@ namespace WpfUpdate
             var imagetemp = new BitmapImage(new Uri(strImagUrl, UriKind.Relative));
             msg_img.Source = imagetemp;
             gropMsg.Visibility = Visibility.Visible;
-            //txtUpdateInfo.Opacity = 0.4;
         }
 
         private void CenterWindowOnScreen()
@@ -304,6 +295,7 @@ namespace WpfUpdate
                                     d = 100.00;
                                 this.lab_num.Text = $"{d:F}" + "%";
                             }));
+                            //TODO 自身的话会不会crash处理
                             if (File.Exists(unZipDir + theEntry.Name))
                             {
                                 File.Delete(unZipDir + theEntry.Name);
@@ -348,7 +340,6 @@ namespace WpfUpdate
                 _isStartDown = false;
                 File.Delete(zipFilePath);
             }
-
         }
     }
 
